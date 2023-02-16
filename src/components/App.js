@@ -55,6 +55,20 @@ function App() {
         });
       });
   }
+  function handleDeleteQuestion(id) {
+    fetch(`http://localhost:4000/questions/${id}`, { method: 'DELETE' })
+      .then(response => {
+        if (response.ok) {
+          setQuestions(questions.filter(q => q.id !== id));
+        } else {
+          throw new Error('Failed to delete question');
+        }
+      })
+      .catch(error => console.error(error));
+  }
+  
+  // This function sends a DELETE request to the server to delete the question with the given `id
+  
 
   return (
     <div>
