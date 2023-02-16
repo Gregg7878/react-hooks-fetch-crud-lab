@@ -6,6 +6,7 @@ import QuestionList from "./QuestionList";
 function App() {
   const [page, setPage] = useState("List");
   const [questions, setQuestions] = useState([]);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [formData, setFormData] = useState({
     prompt: '',
     answers: ['', '', '', ''],
@@ -18,6 +19,27 @@ function App() {
       .then((data) => setQuestions(data));
   }, []);
 
+  const handleQuestionSelect = (question) => {
+    setSelectedQuestion(question);
+  };
+
+  const handleCorrectIndexChange = (correctIndex) => {
+    const updatedQuestion = { ...selectedQuestion, correctIndex };
+
+    fetch(`http://localhost:4000/questions/${selectedQuestion.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedQuestion),
+    })
+      .then((response) => response.json())
+      .then((updatedQuestion) => {
+        const updatedQuestions = questions.map((q) =>
+          q.id === updatedQuestion.id ? updatedQuestion : q
+        );
+        setQuestions(updatedQuestions);
+        setSelectedQuestion(updatedQuestion);
+      });
+  };
   function handleFormChange(event) {
     const { name, value, type } = event.target;
 
@@ -55,7 +77,7 @@ function App() {
         });
       });
   }
-  function handleDeleteQuestion(id) {
+  function handleDeleteSelectedQuestion(id) {
     fetch(`http://localhost:4000/questions/${id}`, { method: 'DELETE' })
       .then(response => {
         if (response.ok) {
@@ -72,6 +94,11 @@ function App() {
 
   return (
     <div>
+       <QuestionList questions={questions} onQuestionSelect={handleQuestionSelect} />
+      {selectedQuestion && (
+        <QuestionDetail question={selectedQuestion} onCorrectIndexChange={handleCorrectIndexChange} />
+      )};
+    
       <form onSubmit={handleFormSubmit}>
         <div>
           <label htmlFor="prompt">Prompt:</label>
@@ -81,7 +108,7 @@ function App() {
             name="prompt"
             value={formData.prompt}
             onChange={handleFormChange}
-          />
+         />
         </div>
         <div>
           <label htmlFor="answer0">Answer 1:</label>

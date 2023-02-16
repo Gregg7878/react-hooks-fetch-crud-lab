@@ -8,6 +8,19 @@ function QuestionItem({ question }) {
       {answer}
     </option>
   ));
+  function QuestionDetail({ question, onCorrectIndexChange }) {
+    const [correctIndex, setCorrectIndex] = useState(question.correctIndex);
+  
+    useEffect(() => {
+      setCorrectIndex(question.correctIndex);
+    }, [question]);
+  
+    const handleCorrectIndexChange = (event) => {
+      const value = parseInt(event.target.value, 10);
+      setCorrectIndex(value);
+      onCorrectIndexChange(value);
+    };
+  
 
   return (
     <li>
@@ -19,6 +32,7 @@ function QuestionItem({ question }) {
       </label>
       <button>Delete Question</button>
     </li>
+    
   );
 }
 
